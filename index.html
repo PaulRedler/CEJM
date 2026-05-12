@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIO — Cours de révision</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --border: #e2ddd4;
+    --text: #1a1816;
+    --muted: #6b6560;
+    --accent-eco: #2d6a4f;
+    --accent-droit: #1d3557;
+    --accent-mgmt: #7b2d8b;
+    --accent-eco-light: #d8f3dc;
+    --accent-droit-light: #dce8f5;
+    --accent-mgmt-light: #f0d9f5;
+    --tag-eco: #2d6a4f;
+    --tag-droit: #1d3557;
+    --tag-mgmt: #7b2d8b;
+    --highlight: #ffdd57;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0 0 2rem 0;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 1.5rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .sidebar-subtitle {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Search */
+  .search-wrap {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 72px;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  #search {
+    width: 100%;
+    padding: 0.45rem 0.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.8rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #search:focus { border-color: var(--accent-mgmt); }
+
+  /* Nav tree */
+  .nav-section { padding: 0.5rem 0; }
+
+  .nav-theme {
+    padding: 0.5rem 1.25rem 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.38rem 1.25rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, border-color 0.15s;
+    cursor: pointer;
+    line-height: 1.35;
+  }
+
+  .nav-link:hover { background: var(--bg); }
+  .nav-link.active { border-left-color: var(--accent-mgmt); background: var(--accent-mgmt-light); font-weight: 600; }
+
+  .nav-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-eco  { background: var(--accent-eco); }
+  .dot-droit { background: var(--accent-droit); }
+  .dot-mgmt { background: var(--accent-mgmt); }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: 260px;
+    padding: 2.5rem 2rem 4rem;
+    max-width: 900px;
+  }
+
+  /* Progress bar */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 260px; right: 0;
+    height: 3px;
+    background: var(--border);
+    z-index: 200;
+  }
+  #progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-eco), var(--accent-mgmt));
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  /* Page header */
+  .page-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  .page-header p {
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+  }
+
+  /* Theme sections */
+  .theme-block { margin-bottom: 3rem; }
+
+  .theme-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    padding-left: 0.1rem;
+  }
+
+  .theme-title {
+    font-family: 'Lora', serif;
+    font-size: 1.55rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  /* Chapter headers */
+  .chapter {
+    margin-bottom: 0.5rem;
+  }
+
+  .chapter-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+  }
+
+  .chapter-tag {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: white;
+  }
+
+  .tag-eco  { background: var(--tag-eco); }
+  .tag-droit { background: var(--tag-droit); }
+  .tag-mgmt { background: var(--tag-mgmt); }
+
+  .chapter-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  /* Definition cards */
+  .def-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .def-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .def-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+
+  .def-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+
+  .def-card.eco::before  { background: var(--accent-eco); }
+  .def-card.droit::before { background: var(--accent-droit); }
+  .def-card.mgmt::before  { background: var(--accent-mgmt); }
+
+  .def-term {
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 0.35rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .def-source {
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--muted);
+    font-style: italic;
+    padding: 0.1rem 0.45rem;
+    background: var(--bg);
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  .def-text {
+    font-family: 'Lora', serif;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: #3a3733;
+  }
+
+  /* Sub-items (examples, sub-definitions) */
+  .def-sub {
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .def-sub-item {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    padding: 0.3rem 0.6rem;
+    background: var(--bg);
+    border-radius: 6px;
+    font-family: 'Lora', serif;
+    color: #3a3733;
+  }
+
+  .def-sub-item strong {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.79rem;
+    color: var(--text);
+  }
+
+  /* Two composantes */
+  .composantes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+  }
+
+  .composante {
+    background: var(--bg);
+    border-radius: 7px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.81rem;
+    font-family: 'Lora', serif;
+    line-height: 1.5;
+    color: #3a3733;
+  }
+
+  /* Highlight search matches */
+  mark {
+    background: var(--highlight);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+
+  /* Mobile toggle */
+  #menu-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem; left: 1rem;
+    z-index: 300;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 99;
+  }
+
+  /* hidden by search */
+  .def-card.hidden { display: none; }
+
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; padding: 4rem 1rem 3rem; }
+    #progress-bar { left: 0; }
+    #menu-toggle { display: block; }
+    .overlay.active { display: block; }
+    .composantes { grid-template-columns: 1fr; }
+  }
+
+  /* scroll-reveal */
+  .def-card {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.2s, border-color 0.2s;
+  }
+  .def-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* keep hover working after visible */
+  .def-card.visible:hover {
+    transform: translateY(-1px);
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"><div id="progress-fill"></div></div>
+<button id="menu-toggle">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">SIO 1 &amp; 2</div>
+    <div class="sidebar-subtitle">Cours de révision</div>
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Rechercher un terme…" autocomplete="off">
+  </div>
+  <div id="nav-tree"></div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+  <div class="page-header">
+    <h1>SIO — Cours</h1>
+    <p>Tous les termes clés, organisés par thème et chapitre.</p>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent-eco)"></div> Économie</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent-droit)"></div> Droit</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent-mgmt)"></div> Management</div>
+    </div>
+  </div>
+
+  <div id="content"></div>
+</main>
+
+<script>
+const DATA = [
+  {
+    id: "sio1",
+    label: "SIO 1",
+    themes: [
+      {
+        id: "t1",
+        title: "Thème 1",
+        chapters: [
+          {
+            id: "ch1-eco",
+            title: "Chapitre 1 — Économie",
+            type: "eco",
+            defs: [
+              {
+                term: "Partie prenante",
+                source: "Freeman",
+                text: "Personne ou groupe de personnes qui sont affectés par la réalisation des objectifs d'une entreprise. On distingue les parties prenantes primaires (lien contractuel avec l'entreprise) des parties prenantes secondaires. Les parties prenantes primaires se séparent en interne (dans l'entreprise) et externe."
+              },
+              {
+                term: "Logique entrepreneuriale",
+                text: "Témoignée par la volonté d'entreprendre, la prise de risque, l'observation d'une opportunité de marché ou la capacité à innover."
+              },
+              {
+                term: "Logique managériale",
+                text: "Un manager organise, dirige et coordonne des tâches. Il gère les ressources humaines. Il fixe des objectifs et la stratégie à suivre."
+              },
+              {
+                term: "La création d'une entreprise",
+                text: "Suit les étapes suivantes : l'idée, l'étude de marché, le business plan, recherche de financement, le choix du statut juridique, les démarches légales."
+              },
+              {
+                term: "Finalité",
+                text: "Raison d'être de l'entreprise, s'inscrit sur le long terme. On distingue 3 types de finalité : finalité économique, finalité sociale et finalité sociétale. Ces finalités sont complémentaires. D'après Drucker, la finalité première d'une entreprise est sociale et sociétale."
+              },
+              {
+                term: "RSE (Responsabilité sociale et sociétale de l'entreprise)",
+                text: "Prise en compte des dimensions sociales et sociétales lors de l'activité d'une entreprise."
+              },
+              {
+                term: "Performance",
+                text: "Capacité d'une entreprise à atteindre ses objectifs. Elle est économique, financière, commerciale, sociale et environnementale. Elle a deux composantes :",
+                composantes: [
+                  { label: "L'efficacité", def: "Résultat conforme à l'objectif." },
+                  { label: "L'efficience", def: "Résultat obtenu avec un minimum de moyens." }
+                ]
+              }
+            ]
+          },
+          {
+            id: "ch2-droit",
+            title: "Chapitre 2 — Droit",
+            type: "droit",
+            defs: [
+              {
+                term: "Contrat",
+                text: "Accord de volonté entre deux parties."
+              },
+              {
+                term: "Force obligatoire",
+                text: "Principe selon lequel le contrat a force de loi entre les parties."
+              },
+              {
+                term: "Résolution",
+                text: "Anéantissement rétroactif du contrat."
+              },
+              {
+                term: "Résiliation",
+                text: "Fin du lien contractuel pour l'avenir, concerne les contrats à exécutions successives."
+              },
+              {
+                term: "Bonne foi",
+                text: "Les parties doivent vouloir contracter, être sincères."
+              },
+              {
+                term: "Situation pré-contractuelle",
+                text: "Phase de pourparlers, de négociation avant l'aboutissement du contrat."
+              },
+              {
+                term: "Conditions de validité du contrat",
+                text: "",
+                sub: [
+                  { label: "Consentement libre et éclairé", def: "Libre veut dire sans violence, éclairé veut dire sans erreur et sans dol (tromper le contractant en donnant de fausses informations)." },
+                  { label: "Capacité de contracter", def: "Avoir 18 ans révolus et ne pas être majeur incapable." },
+                  { label: "Le contenu", def: "Licite et certain (certain = on doit pouvoir déterminer l'obligation du contractant à partir du contrat)." }
+                ]
+              }
+            ]
+          },
+          {
+            id: "ch3-eco",
+            title: "Chapitre 3 — Économie",
+            type: "eco",
+            defs: [
+              {
+                term: "Agent économique",
+                text: "Unité institutionnelle qui se caractérise par sa contribution à l'activité économique. Il s'agit des ménages, des sociétés non-financières (entreprises), des sociétés financières (banques etc.), des institutions sans but lucratif (associations etc.), des administrations publiques (État etc.) et du reste du monde."
+              },
+              {
+                term: "Asymétrie d'information",
+                text: "Situation où l'offreur et le demandeur ne disposent pas des mêmes informations sur le bien ou service échangé."
+              },
+              {
+                term: "Barrières à l'entrée",
+                text: "Obstacle rencontré par une entreprise pour accéder à un marché. Elles peuvent être stratégiques, réglementaires ou économiques."
+              },
+              {
+                term: "Coopération",
+                text: "Relation établie avec une autre entreprise."
+              },
+              {
+                term: "Échanges",
+                text: "Relations sur un marché qui se traduisent par des flux physiques et monétaires entre agents économiques."
+              },
+              {
+                term: "Externalité",
+                text: "Effets indirects non recherchés qui résultent de l'activité d'une entreprise et qui ne sont pas pris en compte par le marché. Elles peuvent être négatives ou positives."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "t2",
+        title: "Thème 2",
+        chapters: [
+          {
+            id: "ch4-mgmt",
+            title: "Chapitre 4 — Management",
+            type: "mgmt",
+            defs: [
+              {
+                term: "Compétitivité",
+                text: "Capacité pour une entreprise à maintenir ou accroître ses parts de marché. On distingue la compétitivité-prix de la compétitivité hors-prix."
+              },
+              {
+                term: "Innovation",
+                text: "Mise en œuvre au sein de l'entreprise d'une invention. On différencie l'innovation de produit, de procédé, de commercialisation et d'organisation."
+              },
+              {
+                term: "Macro-environnement",
+                text: "Éléments extérieurs à l'entreprise qu'elle ne peut pas ou peu influencer."
+              },
+              {
+                term: "PESTEL",
+                text: "Modèle qui analyse le macro-environnement en termes d'opportunités ou menaces avec les facteurs politiques, économiques, socioculturels, technologiques, environnementaux et légaux."
+              }
+            ]
+          },
+          {
+            id: "ch5-droit",
+            title: "Chapitre 5 — Droit",
+            type: "droit",
+            defs: [
+              {
+                term: "Abus de position dominante",
+                text: "Pratique anticoncurrentielle qui verrouille la concurrence. Pour démontrer un abus, il faut montrer l'existence d'une position dominante, une exploitation abusive de cette position et un effet restrictif sur le jeu de la concurrence."
+              },
+              {
+                term: "Brevet",
+                text: "Titre de propriété intellectuelle concernant une invention permettant un monopole d'exploitation (dure 20 ans)."
+              },
+              {
+                term: "Entente",
+                text: "Accord entre plusieurs acteurs pour ajuster leurs pratiques commerciales. Elle peut être horizontale (avec des concurrents) ou verticale (fournisseurs ou clients)."
+              },
+              {
+                term: "Invention",
+                text: "Solution technique nouvelle et inventive susceptible d'applications industrielles."
+              },
+              {
+                term: "Marque",
+                text: "Signe distinctif représentant une entreprise, un bien ou un service durant 10 ans et renouvelable. En France on la dépose à l'INPI."
+              },
+              {
+                term: "Validité d'une marque",
+                text: "Elle doit être distinctive, licite, non déceptive et disponible."
+              }
+            ]
+          },
+          {
+            id: "ch6-eco",
+            title: "Chapitre 6 — Économie",
+            type: "eco",
+            defs: [
+              {
+                term: "Cadre européen de la politique économique",
+                text: "Système qui impose des règles aux membres de l'UE pour leur politique économique."
+              },
+              {
+                term: "Politique conjoncturelle",
+                text: "Mesures prises par un gouvernement afin de maintenir ou retrouver les équilibres économiques du « carré magique »."
+              },
+              {
+                term: "Carré magique de Kaldor",
+                text: "Graphique avec 4 indicateurs qui représente une situation économique : PIB, inflation, chômage et Balance des transactions courantes (BTC = exportations − importations)."
+              },
+              {
+                term: "Politique économique",
+                text: "Ensemble des mesures prises par un État pour réguler l'activité économique à long ou court terme."
+              },
+              {
+                term: "Politique structurelle",
+                text: "Mesures prises par un gouvernement afin d'agir durablement sur l'économie."
+              },
+              {
+                term: "Fonctions de l'État",
+                text: "",
+                sub: [
+                  { label: "Fonction d'allocation", def: "Rétablir un usage optimal des ressources." },
+                  { label: "Fonction de stabilisation", def: "A pour objectif le plein emploi et la stabilité des prix." },
+                  { label: "Fonction de redistribution", def: "Corriger la répartition des richesses." }
+                ]
+              },
+              {
+                term: "Croissance économique",
+                text: "Évolution des richesses produites, on la mesure avec le PIB."
+              },
+              {
+                term: "Croissance endogène",
+                text: "Croissance économique réalisée avec l'aide de l'État qui résulte d'investissements sur le long terme."
+              },
+              {
+                term: "Politique de l'offre",
+                text: "Lever les freins fiscaux et réglementaires des entreprises."
+              },
+              {
+                term: "Politique de la demande",
+                text: "Soutenir la consommation des ménages."
+              },
+              {
+                term: "Politique monétaire",
+                text: "Mesures qui veillent à la stabilité de la valeur de la monnaie."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "t3",
+        title: "Thème 3",
+        chapters: [
+          {
+            id: "ch7-mgmt",
+            title: "Chapitre 7 — Management",
+            type: "mgmt",
+            defs: [
+              {
+                term: "Compétences",
+                text: "Aptitudes à combiner des ressources grâce à des savoir-faire individuels ou collectifs. On distingue les compétences transversales (savoirs utiles dans diverses situations) des compétences spécifiques."
+              },
+              {
+                term: "Contre-pouvoir des parties prenantes",
+                source: "Crozier et Friedberg",
+                text: "Capacité des parties prenantes à conserver une marge de manœuvre vis-à-vis de l'autorité en augmentant leur zone d'incertitude."
+              },
+              {
+                term: "Mécanismes de coordination",
+                text: "Système d'échange et de fonctionnement propre à chaque entreprise qui permet de répartir les tâches. Il s'agit de supervision directe ou d'ajustement mutuel et de standardisation des normes, qualifications, procédés et résultats."
+              },
+              {
+                term: "Processus",
+                text: "Ensemble d'activités qui transforment des éléments d'entrée en éléments de sortie (processus productif, de support ou de pilotage)."
+              },
+              {
+                term: "Ressource",
+                text: "Actifs tangibles (ressources humaines comme le nombre de salariés ou ressources financières) ou intangibles mobilisés par l'entreprise (ressources humaines comme les compétences, technologiques etc.)."
+              },
+              {
+                term: "Structures",
+                text: "Architecture organisationnelle qui prévoit la répartition du pouvoir et la division du travail (structure divisionnelle, par projet etc.)."
+              },
+              {
+                term: "Style de management",
+                source: "Likert",
+                text: "Manière d'exercer le pouvoir de direction dans une entreprise. 4 styles d'après Likert : autoritaire, paternaliste, consultatif et participatif."
+              }
+            ]
+          },
+          {
+            id: "ch8-droit",
+            title: "Chapitre 8 — Droit",
+            type: "droit",
+            defs: [
+              {
+                term: "Coopérative",
+                text: "Forme d'organisation basée sur la coopération."
+              },
+              {
+                term: "Économie sociale et solidaire",
+                text: "Ensemble d'entreprises sous forme de coopératives, mutuelles, associations etc. dont le fonctionnement et l'activité sont basés sur le principe de solidarité."
+              },
+              {
+                term: "EI (Entreprise Individuelle)",
+                text: "L'entreprise individuelle est la propriété d'une seule personne, il n'y a pas besoin de créer une entité juridique distincte."
+              },
+              {
+                term: "EURL (Entreprise Unipersonnelle à Responsabilité Limitée)",
+                text: "Est une SARL d'une personne."
+              },
+              {
+                term: "Mutuelle",
+                text: "Groupement à but non lucratif menant des activités dans l'intérêt de ses membres contre le versement d'une cotisation à des fins de prévoyance."
+              },
+              {
+                term: "SARL (Société à Responsabilité Limitée)",
+                text: "La responsabilité financière est limitée aux apports mais la cession des parts nécessite l'accord des autres associés."
+              },
+              {
+                term: "SA (Société Anonyme)",
+                text: "La société anonyme est la forme juridique des grandes entreprises, le capital est divisé en actions."
+              },
+              {
+                term: "SAS (Société par Actions Simplifiée)",
+                text: "Se caractérise par une grande liberté contractuelle."
+              }
+            ]
+          },
+          {
+            id: "ch9-eco",
+            title: "Chapitre 9 — Économie",
+            type: "eco",
+            defs: [
+              {
+                term: "Chaîne de valeur de Porter",
+                text: "Outil d'analyse reposant sur la distinction entre les activités principales (créatrices de valeur pour le client) et les activités de soutien qu'il faut sous-traiter."
+              },
+              {
+                term: "Combinaison productive",
+                text: "Association des facteurs de productions. S'il y a plus de facteur travail que capital on parle de combinaison organique et de combinaison capitalistique pour l'inverse."
+              },
+              {
+                term: "Coûts de production",
+                text: "Charges payées par l'entreprise, il s'agit des consommations intermédiaires (matières premières, factures etc.) et de la rémunération des salariés. Ils se décomposent en coûts fixes et variables."
+              },
+              {
+                term: "Facteurs de productions",
+                text: "Éléments entrant dans le processus productif. Il s'agit des facteurs capital (machines, matières premières etc.) et des facteurs travail (heures de travail des salariés)."
+              },
+              {
+                term: "Impartition",
+                text: "Externalisation qui consiste à confier à des partenaires extérieurs des tâches non stratégiques."
+              },
+              {
+                term: "Gains de productivité",
+                text: "Amélioration de la productivité grâce à l'innovation qui se traduit par une amélioration des performances de l'économie nationale."
+              }
+            ]
+          },
+          {
+            id: "ch10-eco",
+            title: "Chapitre 10 — Économie",
+            type: "eco",
+            defs: [
+              {
+                term: "Cycle d'exploitation",
+                text: "Ensemble des opérations réalisées de l'achat des biens et services nécessaires à l'activité de production de l'entreprise jusqu'à l'encaissement des ventes."
+              },
+              {
+                term: "Cycle d'investissement",
+                text: "Ensemble des opérations qui concerne l'acquisition et l'utilisation des immobilisations nécessaires à l'activité de production de l'entreprise."
+              },
+              {
+                term: "Compte de résultat",
+                text: "Document comptable synthétisant l'ensemble des charges et des produits d'une entreprise de l'exercice comptable. Il permet de déterminer le résultat net de l'exercice qui peut être un bénéfice ou une perte."
+              },
+              {
+                term: "Bilan",
+                text: "Document qui représente la situation patrimoniale d'une entreprise à une date donnée en termes d'emplois et de ressources. Il permet une analyse de la situation financière du cycle d'exploitation et d'investissement de l'entreprise."
+              },
+              {
+                term: "Fonds de Roulement Net Global (FRNG)",
+                text: "Ressources stables disponibles pour financer les besoins du cycle d'exploitation en attendant les encaissements clients."
+              },
+              {
+                term: "Besoin en Fonds de Roulement (BFR)",
+                text: "Montant dont l'entreprise a besoin pour financer son cycle d'exploitation en attendant de recevoir le paiement dû par ses clients."
+              },
+              {
+                term: "Trésorerie",
+                text: "Ensemble des sommes d'argent disponibles en caisse ou en banque."
+              },
+              {
+                term: "Les modes de financement",
+                text: "Ensemble des solutions de financement internes et/ou externes à l'entreprise lui permettant de financer ses besoins actuels et/ou futurs liés à son cycle d'exploitation et/ou d'investissement."
+              },
+              {
+                term: "L'équilibre financier",
+                text: "Exige que les capitaux mobilisés par l'entreprise pour répondre à un besoin de financement soient d'une durée proportionnelle à la durée de vie ou d'utilisation du bien acquis."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "sio2",
+    label: "SIO 2",
+    themes: [
+      {
+        id: "t4",
+        title: "Thème 4",
+        chapters: [
+          {
+            id: "ch1-mgmt-sio2",
+            title: "Chapitre 1 — Management",
+            type: "mgmt",
+            defs: [
+              {
+                term: "Système d'information (SI)",
+                text: "Ensemble organisé des ressources (matériel, logiciel, personnel, données etc.) permettant d'acquérir, stocker, traiter et diffuser l'information."
+              },
+              {
+                term: "Action collective",
+                text: "Activité réalisée par un groupe partageant un intérêt commun."
+              },
+              {
+                term: "Résistance au changement",
+                text: "Comportement ou attitude indiquant le refus d'obtempérer à un changement."
+              },
+              {
+                term: "Flexibilité",
+                text: "Souplesse d'une organisation à répondre aux fluctuations de son environnement. On distingue la flexibilité quantitative et qualitative, ainsi que la flexibilité interne et externe.",
+                sub: [
+                  { label: "Flexibilité quantitative externe", def: "Embauche, offre d'emploi, licenciement." },
+                  { label: "Flexibilité quantitative interne", def: "Ajustements des horaires des salariés, de la quantité de travail." },
+                  { label: "Flexibilité qualitative externe", def: "Sous-traitance." },
+                  { label: "Flexibilité qualitative interne", def: "Formation des employés, développement des compétences." }
+                ]
+              },
+              {
+                term: "Mode de coordination",
+                text: "Voir mécanismes de coordination (chapitre 7 thème 3)."
+              }
+            ]
+          },
+          {
+            id: "ch2-droit-sio2",
+            title: "Chapitre 2 — Droit",
+            type: "droit",
+            defs: [
+              {
+                term: "Données personnelles",
+                text: "Information identifiant directement ou indirectement une personne (nom, numéro de téléphone, date de naissance, photographie (!sensible) etc.)."
+              },
+              {
+                term: "Droit d'auteur",
+                text: "Ensemble des droits dont dispose un auteur ou ses ayants droit sur des œuvres de l'esprit originales. Il comporte les droits patrimoniaux (droit d'exploitation etc.) et les droits moraux (droit de divulgation, paternité…)."
+              },
+              {
+                term: "Droit sui generis",
+                text: "Protection du contenu des bases de données."
+              },
+              {
+                term: "Droit de la marque",
+                text: "Protection juridique d'un « signe » permettant de distinguer les produits d'une entreprise de ceux de ses concurrents."
+              },
+              {
+                term: "Droit des dessins et modèles",
+                text: "Protection juridique de l'apparence des produits."
+              }
+            ]
+          },
+          {
+            id: "ch3-eco-sio2",
+            title: "Chapitre 3 — Économie",
+            type: "eco",
+            defs: [
+              {
+                term: "Désintermédiation",
+                text: "Phénomène de mise en relation directe des acteurs économiques (réduction ou suppression d'intermédiaires)."
+              },
+              {
+                term: "Économie de l'usage",
+                text: "Remplace la vente d'un bien par la vente d'un service (location de voiture par exemple)."
+              },
+              {
+                term: "Économie collaborative",
+                text: "Système de mutualisation et d'échanges de services, de ressources, de biens, de savoir etc. entre différents acteurs."
+              },
+              {
+                term: "Externalité de réseau",
+                text: "Phénomène d'augmentation de l'attractivité d'une place de marché due à son grand nombre d'utilisateurs."
+              },
+              {
+                term: "Place de marché",
+                text: "Lieu virtuel d'échanges entre offreurs et demandeurs de biens et services qui repose souvent sur des transactions sécurisées."
+              },
+              {
+                term: "Relations d'échanges",
+                text: "Transactions de toutes natures entre différents acteurs de l'économie numérique (B to C, C to C et B to G avec B business, C consumer et G government)."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "t5",
+        title: "Thème 5",
+        chapters: [
+          {
+            id: "ch4-mgmt-sio2",
+            title: "Chapitre 4 — Management",
+            type: "mgmt",
+            defs: [
+              {
+                term: "Gestion prévisionnelle des emplois et des compétences (GPEC)",
+                text: "Dispositif de gestion des ressources humaines qui a pour objectif, en tenant compte des stratégies de l'entreprise, d'adapter qualitativement (compétences) et quantitativement les ressources humaines."
+              },
+              {
+                term: "Gestion des talents",
+                text: "Le talent est une combinaison rare de compétences rares. La gestion des talents est un investissement humain dont le but est de valoriser les compétences particulières d'un individu afin d'en faire une personne clé de l'entreprise."
+              },
+              {
+                term: "Facteurs de motivation",
+                source: "Frederick Herzberg",
+                text: "Pour Frederick Herzberg, il existe 2 types de facteurs : les facteurs d'hygiènes qui comportent le salaire ou les conditions de travail et apportent satisfaction, ainsi que les facteurs de motivation qui comportent l'estime de soi, l'importance accordée etc. qui sont les véritables leviers de motivation."
+              },
+              {
+                term: "Ratio d'équité",
+                source: "John Stacey Adams",
+                text: "D'après John Stacey Adams, un individu est motivé à réduire les inégalités qu'il ressent par rapport à un autre employé ; s'il considère que son ratio rétribution/contribution est moins élevé qu'un autre employé, il travaillera plus."
+              },
+              {
+                term: "Pyramide de Maslow",
+                source: "Maslow",
+                text: "Hiérarchisation des besoins d'un employé au travail, les besoins les plus hauts nécessitent ceux d'avant, du plus bas au plus haut : Survie (juste rémunération), Sécurité (stabilité d'emploi), Appartenance à un groupe, Reconnaissance/estime, Réalisation de soi."
+              }
+            ]
+          },
+          {
+            id: "ch5-droit-sio2",
+            title: "Chapitre 5 — Droit",
+            type: "droit",
+            defs: [
+              {
+                term: "Clause contractuelle",
+                text: "Phrase ou paragraphe contenu dans un contrat précisant les droits et obligations du contractant."
+              },
+              {
+                term: "Convention collective",
+                text: "Texte négocié entre le ou les représentants de l'employeur et les syndicats des travailleurs."
+              },
+              {
+                term: "Clause de mobilité",
+                text: "Disposition contractuelle prévoyant que le salarié accepte que son lieu de travail puisse être modifié."
+              },
+              {
+                term: "Clause de non-concurrence",
+                text: "Disposition contractuelle qui oblige le salarié à ne pas exercer une activité susceptible de concurrencer l'employeur."
+              },
+              {
+                term: "Rupture conventionnelle",
+                text: "Modalité de rupture du contrat de travail à l'accord commun de l'employé et l'employeur."
+              },
+              {
+                term: "Licenciement pour motif personnel",
+                text: "Rupture du contrat de travail à l'initiative de l'employeur reposant sur le comportement ou résultat de l'employé."
+              },
+              {
+                term: "Licenciement pour motif économique",
+                text: "Rupture du contrat de travail à l'initiative de l'employeur résultant de difficultés économiques, ou d'une réorganisation de l'entreprise."
+              },
+              {
+                term: "Démission",
+                text: "Rupture du contrat de travail à l'initiative de l'employé."
+              },
+              {
+                term: "Plan de sauvegarde de l'emploi",
+                text: "Dispositif légal ayant pour objectif de limiter les conséquences des licenciements collectifs."
+              }
+            ]
+          },
+          {
+            id: "ch6-eco-sio2",
+            title: "Chapitre 6 — Économie",
+            type: "eco",
+            defs: [
+              {
+                term: "Marché du travail",
+                text: "Lieu de rencontre entre l'offre de travail (salarié) et la demande de travail (entreprise)."
+              },
+              {
+                term: "Marché de l'emploi",
+                text: "Pareil mais on inverse l'offre et la demande."
+              },
+              {
+                term: "Segmentation du marché du travail",
+                text: "Il existe différents compartiments distincts du marché du travail.",
+                sub: [
+                  { label: "Marché primaire", def: "Ensemble des emplois stables." },
+                  { label: "Marché secondaire", def: "Ensemble des emplois précaires." },
+                  { label: "Marché externe", def: "Compartiment concurrentiel du marché." },
+                  { label: "Marché interne", def: "Compartiment interne aux entreprises." }
+                ]
+              },
+              {
+                term: "Politiques de l'emploi",
+                text: "Ensemble des décisions politiques qui corrigent les déséquilibres sur le marché du travail.",
+                sub: [
+                  { label: "Politiques actives de l'emploi", def: "Mesures qui incitent au travail." },
+                  { label: "Politiques passives de l'emploi", def: "Mesures d'indemnisation du chômage ou des retraites." }
+                ]
+              },
+              {
+                term: "Déséquilibre",
+                text: "Dysfonctionnement du marché du travail dû à une inégalité de l'offre et de la demande."
+              },
+              {
+                term: "Chômage",
+                text: "Situation de déséquilibre où l'offre est supérieure à la demande."
+              },
+              {
+                term: "Tension",
+                text: "Situation de déséquilibre où l'offre est inférieure à la demande."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "t6",
+        title: "Thème 6",
+        chapters: [
+          {
+            id: "ch7-mgmt-sio2",
+            title: "Chapitre 7 — Management",
+            type: "mgmt",
+            defs: [
+              {
+                term: "Décision stratégique",
+                text: "Décision qui engage la pérennité de l'entreprise sur le long terme et qui mobilise des ressources."
+              },
+              {
+                term: "Diagnostic stratégique",
+                text: "Analyse des différentes variables pouvant influer sur son activité."
+              },
+              {
+                term: "Diagnostic stratégique externe",
+                text: "Analyse du macro (PESTEL) et micro-environnement (5 Forces de Porter)."
+              },
+              {
+                term: "Diagnostic stratégique interne",
+                text: "Analyse des ressources de l'entreprise pour déterminer celles qui constituent des forces et faiblesses."
+              },
+              {
+                term: "5 Forces de Porter",
+                text: "Concurrents, nouveaux entrants, produits de substitution, clients, fournisseurs."
+              },
+              {
+                term: "Stratégie délibérée",
+                source: "Henry Mintzberg",
+                text: "Stratégie planifiée à l'issue du diagnostic stratégique (d'après Henry Mintzberg)."
+              },
+              {
+                term: "Stratégie émergente",
+                source: "Henry Mintzberg",
+                text: "Stratégie issue d'évolutions non prévues de l'environnement, qui change la stratégie délibérée et qui forme la stratégie réalisée (Henry Mintzberg)."
+              },
+              {
+                term: "Modèle IMC (Intelligence Modélisation Choix)",
+                text: "I : Identification et analyse des problématiques. M : Classement des solutions en fonction des risques et opportunités. C : Choix de la meilleure solution."
+              }
+            ]
+          },
+          {
+            id: "ch8-mgmt-sio2",
+            title: "Chapitre 8 — Management",
+            type: "mgmt",
+            defs: [
+              {
+                term: "Stratégie globale",
+                text: "Concerne l'entreprise dans sa globalité, il s'agit de spécialisation ou de diversification et d'internalisation ou d'externalisation."
+              },
+              {
+                term: "Domaine d'activité stratégique (DAS)",
+                text: "Ensemble du marché et de produits à qui on alloue ou retire des ressources sans affecter le reste de l'entreprise."
+              },
+              {
+                term: "Stratégie de domaine",
+                source: "Porter",
+                text: "Concerne un DAS, d'après Porter, il s'agit de la domination par les coûts, de la différenciation (travailler sur le caractère unique du produit) ou de la focalisation (cibler le client)."
+              },
+              {
+                term: "Modalité de croissance des entreprises",
+                text: "Une entreprise peut augmenter sa taille par : la croissance interne (mobiliser ses propres ressources), croissance externe (acquisition d'une autre entreprise) et croissance conjointe (coopération avec d'autres entreprises)."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ── BUILD HTML ──
+function buildContent() {
+  const container = document.getElementById('content');
+  const navTree = document.getElementById('nav-tree');
+  let html = '';
+  let navHtml = '';
+
+  DATA.forEach(sio => {
+    navHtml += `<div class="nav-section">
+      <div class="nav-theme">${sio.label}</div>`;
+
+    sio.themes.forEach(theme => {
+      html += `<div class="theme-block" id="${theme.id}">
+        <div class="theme-label">${sio.label}</div>
+        <h2 class="theme-title">${theme.title}</h2>`;
+
+      theme.chapters.forEach(ch => {
+        const dotClass = 'dot-' + ch.type;
+        const tagClass = 'tag-' + ch.type;
+        const typeLabel = ch.type === 'eco' ? 'Économie' : ch.type === 'droit' ? 'Droit' : 'Management';
+
+        navHtml += `<a class="nav-link" href="#${ch.id}" onclick="scrollToChapter('${ch.id}')">
+          <div class="nav-dot ${dotClass}"></div>${ch.title}
+        </a>`;
+
+        html += `<div class="chapter" id="${ch.id}">
+          <div class="chapter-header">
+            <span class="chapter-tag ${tagClass}">${typeLabel}</span>
+            <span class="chapter-title">${ch.title}</span>
+          </div>
+          <div class="def-grid">`;
+
+        ch.defs.forEach((d, i) => {
+          const cardClass = `def-card ${ch.type}`;
+          html += `<div class="${cardClass}" data-search="${(d.term + ' ' + d.text + (d.sub ? d.sub.map(s=>s.label+' '+s.def).join(' ') : '') + (d.composantes ? d.composantes.map(c=>c.label+' '+c.def).join(' ') : '')).toLowerCase()}">
+            <div class="def-term">${d.term}${d.source ? `<span class="def-source">${d.source}</span>` : ''}</div>`;
+
+          if (d.text) {
+            html += `<div class="def-text">${d.text}</div>`;
+          }
+
+          if (d.sub) {
+            html += `<div class="def-sub">`;
+            d.sub.forEach(s => {
+              html += `<div class="def-sub-item"><strong>${s.label} :</strong> ${s.def}</div>`;
+            });
+            html += `</div>`;
+          }
+
+          if (d.composantes) {
+            html += `<div class="composantes">`;
+            d.composantes.forEach(c => {
+              html += `<div class="composante"><strong>${c.label} :</strong> ${c.def}</div>`;
+            });
+            html += `</div>`;
+          }
+
+          html += `</div>`;
+        });
+
+        html += `</div></div>`;
+      });
+
+      html += `</div>`;
+    });
+
+    navHtml += `</div>`;
+  });
+
+  container.innerHTML = html;
+  navTree.innerHTML = navHtml;
+}
+
+// ── SCROLL ──
+function scrollToChapter(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Update active nav
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.querySelector(`[onclick="scrollToChapter('${id}')"]`)?.classList.add('active');
+    // close mobile sidebar
+    closeSidebar();
+  }
+  return false;
+}
+
+// ── PROGRESS BAR ──
+window.addEventListener('scroll', () => {
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docH > 0 ? (window.scrollY / docH) * 100 : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Active nav item
+  const chapters = document.querySelectorAll('.chapter');
+  let current = null;
+  chapters.forEach(ch => {
+    if (ch.getBoundingClientRect().top < 120) current = ch.id;
+  });
+  if (current) {
+    document.querySelectorAll('.nav-link').forEach(l => {
+      l.classList.toggle('active', l.getAttribute('onclick')?.includes(current));
+    });
+  }
+});
+
+// ── SEARCH ──
+document.getElementById('search').addEventListener('input', function () {
+  const q = this.value.trim().toLowerCase();
+  const cards = document.querySelectorAll('.def-card');
+
+  cards.forEach(card => {
+    if (!q) {
+      card.classList.remove('hidden');
+      return;
+    }
+    const match = card.dataset.search.includes(q);
+    card.classList.toggle('hidden', !match);
+  });
+
+  // highlight
+  removeHighlights();
+  if (q) highlightText(q);
+});
+
+function removeHighlights() {
+  document.querySelectorAll('.def-card mark').forEach(m => {
+    m.replaceWith(m.textContent);
+  });
+}
+
+function highlightText(q) {
+  const els = document.querySelectorAll('.def-card:not(.hidden) .def-term, .def-card:not(.hidden) .def-text, .def-card:not(.hidden) .def-sub-item, .def-card:not(.hidden) .composante');
+  els.forEach(el => {
+    const original = el.innerHTML;
+    // simple highlight — avoid breaking tags
+    const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+    el.innerHTML = original.replace(regex, '<mark>$1</mark>');
+  });
+}
+
+// ── MOBILE MENU ──
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+document.getElementById('menu-toggle').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('active');
+});
+
+document.getElementById('overlay').addEventListener('click', closeSidebar);
+
+// ── SCROLL REVEAL ──
+function initReveal() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 40);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.def-card').forEach(c => obs.observe(c));
+}
+
+buildContent();
+initReveal();
+</script>
+</body>
+</html>
